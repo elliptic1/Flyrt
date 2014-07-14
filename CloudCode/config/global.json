@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "Flyrt": {
+            "applicationId": "LFcNLM94TXKAzaWwuTHlGMaAMiDvzKAUd5TUjxkO", 
+            "masterKey": "RWz7YhaWkSMDNBu7rQR22SaIU9O2FLhWJ0OQhCZC"
+        }, 
+        "_default": {
+            "link": "Flyrt"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.2.19"
+    }
+}

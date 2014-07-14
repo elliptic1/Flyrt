@@ -1,0 +1,102 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".HomeActivity"
+    android:background="@color/lightblue">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/dataID"
+        android:textColor="@color/orange"
+        android:singleLine="true"
+        android:text="DataID"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/flyrtlogothree" />
+
+    <ImageView
+        android:layout_width="90dp"
+        android:layout_height="180dp"
+        android:id="@+id/profilepic"
+        android:layout_below="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/blankprofile" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/take_selfie"
+        android:id="@+id/take_a_selfie"
+        android:background="@color/orange"
+        android:textColor="@color/darkblue"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/profilepic"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/whos_nearby"
+        android:id="@+id/whos_nearby"
+        android:background="@color/orange"
+        android:textColor="@color/darkblue"
+        android:layout_below="@id/take_a_selfie"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/timerRow"
+        android:layout_alignParentBottom="true"
+        android:weightSum="2"
+        android:layout_below="@id/whos_nearby"
+        android:layout_marginTop="20dp"
+        >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/timer"
+                android:textColor="@color/orange"
+                android:singleLine="true"
+                android:layout_weight="1"
+                android:text="@string/minutes_left"
+                />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:background="@color/orange"
+        android:textColor="@color/darkblue"
+        android:id="@+id/cancelbutton"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_weight="1"
+        />
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
