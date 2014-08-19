@@ -6,10 +6,19 @@ android {
 
     defaultConfig {
         applicationId "com.tbse.flyrt"
+        testApplicationId "com.tbse.flyrttests"
         minSdkVersion 11
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"
+    }
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+        }
+        androidTest {
+            java.srcDirs = ['src/androidTests/java']
+        }
     }
     buildTypes {
         release {
@@ -25,4 +34,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:20.+'
     compile 'com.google.android.gms:play-services-wearable:+'
     compile files('libs/Parse-1.5.1.jar')
+    androidTestCompile 'junit:junit:4.+'
+    compile files('libs/robotium-solo-5.2.1.jar')
 }
