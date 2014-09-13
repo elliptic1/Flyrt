@@ -1,15 +1,8 @@
 package com.tbse.flyrttests;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.test.ActivityInstrumentationTestCase2;
 import android.util.Log;
 
@@ -45,30 +38,21 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         super.tearDown();
     }
 
-    public Uri setImageUri() {
-        // Store image in dcim
-        Resources resources = getActivity().getResources();
-        return Uri.parse(
-                ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(R.id.logo) + '/'
-                + resources.getResourceTypeName(R.id.logo) + '/'
-                + resources.getResourceEntryName(R.id.logo)
-        );
-    }
-
     @Test
     public void testSelfieButton() throws Exception {
         Log.d("flyrt", "testing selfie button");
         Intent intent = new Intent(getActivity(), FakeCamera.class);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
-        solo.getView(R.id.take_a_selfie)
-                .setOnClickListener(
-                        new SelfieBtnOnClickListenerFactory()
-                                .getOnClickListener(intent,
-                                        (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE),
-                                        getLocationListenerStub(),
-                                        getActivity()
-                                ));
+        Bitmap icon = BitmapFactory.decodeResource(getActivity().getApplicationContext().getResources(),
+                R.drawable.flyrtlogo);
+
+        intent.putExtra("data", icon);
+
+                solo.getView(R.id.take_a_selfie)
+                        .setOnClickListener(
+                                new SelfieBtnOnClickListenerFactory()
+                                        .getOnClickListener(intent,
+                                                getActivity()
+                                        ));
         solo.clickOnView(solo.getView(R.id.take_a_selfie));
         Log.d("flyrt", "waiting for view ...");
         getInstrumentation().waitForIdleSync();
@@ -76,25 +60,6 @@ public class HomeActivityTest extends ActivityInstrumentationTestCase2<HomeActiv
         solo.assertCurrentActivity("camera wrong act", HomeActivity.class);
         assertEquals(true, UserInfo.hasTakenSelfie);
 
-    }
-
-    private LocationListener getLocationListenerStub() {
-
-        return new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                Log.d("flyrt", "test - onLocChanged");
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
     }
 
     @Test

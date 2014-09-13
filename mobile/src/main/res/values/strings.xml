@@ -8,5 +8,7 @@
     <string name="minutes_left">Minutes left: </string>
     <string name="dataid">Data ID: </string>
     <string name="cancel">Cancel Now</string>
+    <string name="parse_app_id">LFcNLM94TXKAzaWwuTHlGMaAMiDvzKAUd5TUjxkO</string>
+    <string name="parse_client_key">zzxxAdVzFmKbn41dekkfkaHAsPTa5Wbg3r4u5IiP</string>
 
 </resources>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,14 +18,13 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.parse.Parse;
 import com.parse.ParseAnalytics;
+import com.parse.ParseInstallation;
+import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
-
-
 
 
 public class HomeActivity extends ActionBarActivity {
@@ -38,15 +36,14 @@ public class HomeActivity extends ActionBarActivity {
     public static LinearLayout timerRow;
     public static Drawable blankProfile;
     Button selfieButton;
-    Button whosNearbyButton;
+    // Button whosNearbyButton;
     Button cancelButton;
     CountDownTimer countDownTimer;
     Bitmap imageBitmap;
-    UserInfo userInfo;
     // Acquire a reference to the system Location Manager
-    Criteria criteria;
-    // Define a listener that responds to location updates
+    // Criteria criteria;
 
+    // Define a listener that responds to location updates
     LocationManager locationManager;
 
     private LocationListener locationListener = null;
@@ -66,7 +63,7 @@ public class HomeActivity extends ActionBarActivity {
                 // Called when a new location is found by the network location provider.
                 if (System.currentTimeMillis() - 2 * 60 * 1000 > UserInfo.lastLocationUpdateTime) {
                     Log.d("flyrt", "Updating location");
-                    userInfo.saveLocationToCloud(location);
+                    UserInfo.saveLocationToCloud(location);
                 }
             }
 
@@ -90,68 +87,50 @@ public class HomeActivity extends ActionBarActivity {
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        if (! alreadyEnabledParseLocalDatastore) {
+        if (!alreadyEnabledParseLocalDatastore) {
             Parse.enableLocalDatastore(getApplicationContext());
-            Parse.initialize(getApplicationContext(), "LFcNLM94TXKAzaWwuTHlGMaAMiDvzKAUd5TUjxkO",
-                "zzxxAdVzFmKbn41dekkfkaHAsPTa5Wbg3r4u5IiP");
-
-            ParseAnalytics.trackAppOpened(getIntent());
             alreadyEnabledParseLocalDatastore = true;
         }
+        Parse.initialize(getApplicationContext(),
+                getString(R.string.parse_app_id),
+                getString(R.string.parse_client_key));
+
+        ParseAnalytics.trackAppOpened(getIntent());
+
+        // Associate the device with a user
+        ParseUser.enableAutomaticUser();
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("user", ParseUser.getCurrentUser());
+        installation.saveInBackground();
+
+        getLocationManager().requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 0, 0, getLocationListener());
 
         setContentView(R.layout.activity_home);
-
-        userInfo = new UserInfo(getApplicationContext());
-        userInfo.init();
 
         profilepic = (ImageView) findViewById(R.id.profilepic);
         blankProfile = getResources().getDrawable(R.drawable.blankprofile);
         selfieButton = (Button) findViewById(R.id.take_a_selfie);
-        whosNearbyButton = (Button) findViewById(R.id.whos_nearby);
         cancelButton = (Button) findViewById(R.id.cancelbutton);
         timer = (TextView) findViewById(R.id.timer);
         timerRow = (LinearLayout) findViewById(R.id.timerRow);
         dataID = (TextView) findViewById(R.id.dataID);
+        dataID.setText("id: " + ParseUser.getCurrentUser().getObjectId());
 
         timerRow.setVisibility(View.INVISIBLE);
 
         // get location criteria
-        criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-        criteria.setCostAllowed(true);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+//        criteria = new Criteria();
+//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//        criteria.setAltitudeRequired(false);
+//        criteria.setBearingRequired(false);
+//        criteria.setCostAllowed(true);
+//        criteria.setPowerRequirement(Criteria.POWER_LOW);
 
         selfieButton.setOnClickListener(new SelfieBtnOnClickListenerFactory().getOnClickListener(
                 new Intent(MediaStore.ACTION_IMAGE_CAPTURE),
-                getLocationManager(),
-                getLocationListener(),
                 this
         ));
-
-        whosNearbyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (UserInfo.hasTakenSelfie == false) {
-                    Toast.makeText(getApplicationContext(),
-                            "Please take a selfie first!",
-                            Toast.LENGTH_LONG)
-                            .show();
-                    return;
-                }
-
-                // start looking for nearby people
-
-                // put results in notifications
-
-                UserInfo.wantsNotifications = true;
-
-            }
-        });
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,8 +138,7 @@ public class HomeActivity extends ActionBarActivity {
                 countDownTimer.cancel();
 
                 resetUI();
-                userInfo.deleteInfo();
-
+                ParseUser.getCurrentUser().logOut();
 
                 getLocationManager().removeUpdates(locationListener);
             }
@@ -168,16 +146,23 @@ public class HomeActivity extends ActionBarActivity {
 
     }
 
+    boolean hasTakenSelfie() {
+        return profilepic.getDrawable() != getResources().getDrawable(R.drawable.blankprofile);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("flyrt", "on act result, code: " + resultCode);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Log.d("flyrt", "calling set selfie");
             setImageAfterSelfie(data);
+            dataID.setText("id: " + ParseUser.getCurrentUser().getObjectId());
         }
     }
 
     private LocationManager getLocationManager() {
+        if (locationManager == null) {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        }
+        if (locationManager == null) Log.e("flyrt", "LM is still null");
         return locationManager;
     }
 
@@ -187,8 +172,6 @@ public class HomeActivity extends ActionBarActivity {
 
         // get selfie thumbnail
         imageBitmap = (Bitmap) extras.get("data");
-        Log.d("flyrt", "setting image after selfie");
-        UserInfo.hasTakenSelfie = true;
 
         // put selfie thumbnail in ImageView
         profilepic.setImageBitmap(imageBitmap);
@@ -197,7 +180,7 @@ public class HomeActivity extends ActionBarActivity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byteArray = stream.toByteArray();
-        userInfo.uploadSelfie(byteArray);
+        UserInfo.uploadSelfie(byteArray);
 
         // start timer
         if (countDownTimer != null) {
@@ -215,7 +198,7 @@ public class HomeActivity extends ActionBarActivity {
 
             public void onFinish() {
                 resetUI();
-                userInfo.deleteInfo();
+                ParseUser.logOut();
             }
         }.start();
 
@@ -226,8 +209,7 @@ public class HomeActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
-        resetUI();
-        userInfo.deleteInfo();
+        ParseUser.logOut();
         super.onDestroy();
     }
 }

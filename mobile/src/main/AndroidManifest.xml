@@ -21,7 +21,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name" />
 
-        <activity android:name=".FakeCamera"/>
+        <activity android:name=".FakeCamera"
+            android:exported="false"/>
 
         <activity
             android:name="com.tbse.flyrt.SplashScreen"

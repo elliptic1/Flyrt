@@ -7,7 +7,7 @@ import android.os.Handler;
 
 public class SplashScreen extends Activity {
 
-    public static int TIMER = 3000;
+    public static int TIMER = 2000;
 
     @Override
     protected void onCreate(Bundle save) {
@@ -15,7 +15,6 @@ public class SplashScreen extends Activity {
         super.onCreate(save);
 
         setContentView(R.layout.splash_screen);
-
 
         new Handler().postDelayed(
                 new Runnable() {
